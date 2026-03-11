@@ -1,0 +1,1376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Virtual Tour Around Colombia 🇨🇴</title>
+<style>
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --yellow:#FCD116;--blue:#003087;--red:#CE1126;--green:#3CB371;
+  --orange:#FF7F00;--sky:#00C8FF;--purple:#7C3AED;--pink:#EC4899;
+  --cream:#FFFBF0;--dark:#1A1A2E;
+  --r:18px;--rs:10px;
+  --sh:0 8px 32px rgba(0,0,0,.13);--shl:0 16px 48px rgba(0,0,0,.18);
+}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Trebuchet MS',Tahoma,sans-serif;
+  background:var(--cream);color:var(--dark);
+  line-height:1.6;overflow-x:hidden;
+}
+::-webkit-scrollbar{width:8px}
+::-webkit-scrollbar-track{background:#f0f0f0}
+::-webkit-scrollbar-thumb{background:var(--yellow);border-radius:4px}
+
+/* ============================================================
+   TYPOGRAPHY HELPERS
+   ============================================================ */
+.ftitle{font-family:Georgia,'Times New Roman',serif;font-weight:900;letter-spacing:-0.5px}
+
+/* ============================================================
+   NAVBAR + DROPDOWN
+   ============================================================ */
+.navbar{
+  position:fixed;top:0;left:0;right:0;z-index:1000;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 30px;height:58px;
+  background:linear-gradient(135deg,#003087 0%,#0050CC 100%);
+  box-shadow:0 4px 20px rgba(0,0,80,.25);
+}
+.nav-logo{
+  font-size:1.3rem;font-weight:900;color:var(--yellow);
+  letter-spacing:1px;text-shadow:0 2px 8px rgba(0,0,0,.3);
+  white-space:nowrap;
+}
+.nav-links{display:flex;list-style:none;gap:2px;align-items:center;height:100%}
+
+/* top-level items */
+.nav-links>li{position:relative;height:100%;display:flex;align-items:center}
+.nav-links>li>a,.nav-links>li>button{
+  color:#fff;text-decoration:none;font-weight:700;font-size:.88rem;
+  padding:8px 13px;border-radius:20px;
+  transition:background .2s,color .2s;
+  display:flex;align-items:center;gap:5px;
+  background:none;border:none;cursor:pointer;
+  white-space:nowrap;
+}
+.nav-links>li>a:hover,
+.nav-links>li>button:hover,
+.nav-links>li.open>button{background:var(--yellow);color:var(--blue)}
+.drop-arrow{font-size:.65rem;transition:transform .25s}
+.nav-links>li.open .drop-arrow{transform:rotate(180deg)}
+
+/* dropdown panel */
+.dropdown{
+  display:none;
+  position:absolute;top:calc(100% + 6px);left:0;
+  background:#fff;border-radius:16px;
+  box-shadow:0 12px 40px rgba(0,0,80,.22);
+  min-width:220px;padding:10px 8px;
+  border:2px solid rgba(0,48,135,.1);
+  animation:dropIn .22s ease;
+  z-index:999;
+}
+@keyframes dropIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+.nav-links>li.open .dropdown{display:block}
+
+/* dropdown items */
+.dropdown a{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 14px;border-radius:10px;
+  color:var(--dark);text-decoration:none;
+  font-weight:600;font-size:.88rem;
+  transition:background .15s,color .15s;
+  white-space:nowrap;
+}
+.dropdown a:hover{background:linear-gradient(90deg,var(--yellow),#ffe55a);color:var(--blue)}
+.dropdown a .di{font-size:1.1rem;width:22px;text-align:center}
+.drop-divider{height:1px;background:#eee;margin:6px 6px}
+.drop-label{
+  font-size:.7rem;font-weight:900;text-transform:uppercase;letter-spacing:1px;
+  color:#aaa;padding:4px 14px 2px;
+}
+
+/* hamburger */
+.nav-toggle{
+  display:none;background:none;border:2px solid rgba(255,255,255,.4);
+  color:#fff;font-size:1.3rem;cursor:pointer;
+  padding:4px 10px;border-radius:10px;
+  transition:background .2s;
+}
+.nav-toggle:hover{background:rgba(255,255,255,.15)}
+
+/* mobile drawer */
+@media(max-width:850px){
+  .nav-links{
+    display:none;flex-direction:column;align-items:flex-start;
+    position:absolute;top:58px;left:0;right:0;
+    background:linear-gradient(180deg,#003087,#0050CC);
+    padding:12px 16px 20px;gap:2px;
+    box-shadow:0 12px 30px rgba(0,0,80,.3);
+    max-height:calc(100vh - 58px);overflow-y:auto;
+  }
+  .nav-links.open{display:flex}
+  .nav-toggle{display:block}
+  .nav-links>li{height:auto;width:100%}
+  .nav-links>li>a,.nav-links>li>button{
+    width:100%;border-radius:10px;padding:10px 14px;
+    justify-content:space-between;
+  }
+  .dropdown{
+    position:static;box-shadow:none;border-radius:10px;
+    border:1px solid rgba(255,255,255,.15);
+    background:rgba(0,0,80,.3);
+    margin:4px 0 4px 14px;padding:6px 4px;
+    animation:none;
+  }
+  .dropdown a{color:#fff}
+  .dropdown a:hover{background:rgba(252,209,22,.2);color:var(--yellow)}
+  .drop-label{color:rgba(255,255,255,.5)}
+  .drop-divider{background:rgba(255,255,255,.15)}
+}
+
+/* ============================================================
+   HERO
+   ============================================================ */
+.hero{
+  min-height:100vh;
+  background:linear-gradient(160deg,#003087 0%,#0060CC 40%,#f0a800 100%);
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  text-align:center;
+  position:relative;overflow:hidden;
+  padding:90px 20px 60px;
+}
+.hero-bg{position:absolute;inset:0;pointer-events:none}
+.floating-emoji{
+  position:absolute;left:var(--x);top:var(--y);
+  font-size:clamp(1.5rem,3vw,2.4rem);
+  animation:float 5s ease-in-out infinite;
+  animation-delay:var(--delay);
+  filter:drop-shadow(0 4px 8px rgba(0,0,0,.2));
+}
+@keyframes float{
+  0%,100%{transform:translateY(0) rotate(-5deg)}
+  50%{transform:translateY(-22px) rotate(5deg)}
+}
+.hero-content{position:relative;z-index:2;max-width:700px}
+.hero-flag{font-size:4rem;margin-bottom:10px;animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+
+.hero-title{
+  font-size:clamp(2.2rem,6vw,4.2rem);
+  color:#fff;line-height:1.15;
+  text-shadow:0 4px 20px rgba(0,0,0,.3);
+  margin-bottom:16px;font-weight:900;
+  font-family:Georgia,serif;
+}
+.hero-title .hl{
+  color:var(--yellow);
+  text-shadow:0 4px 20px rgba(252,209,22,.5);
+  display:block;
+}
+.hero-sub{
+  font-size:clamp(1rem,2.5vw,1.25rem);
+  color:rgba(255,255,255,.92);margin-bottom:36px;
+}
+.btn-start{
+  display:inline-flex;align-items:center;gap:10px;
+  background:var(--yellow);color:var(--blue);
+  font-weight:900;font-size:1.2rem;
+  padding:16px 40px;border-radius:50px;
+  text-decoration:none;
+  box-shadow:0 8px 30px rgba(252,209,22,.5);
+  transition:transform .2s,box-shadow .2s;
+  border:3px solid #fff;
+}
+.btn-start:hover{
+  transform:translateY(-4px) scale(1.04);
+  box-shadow:0 14px 40px rgba(252,209,22,.7);
+}
+.btn-arrow{font-size:1.4rem;animation:rkt 1s ease-in-out infinite}
+@keyframes rkt{0%,100%{transform:translateX(0)}50%{transform:translateX(6px)}}
+.scroll-hint{
+  position:absolute;bottom:24px;
+  color:rgba(255,255,255,.7);font-size:.9rem;
+  animation:bounce 2s infinite;
+}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+
+/* ============================================================
+   SECTIONS
+   ============================================================ */
+.section{padding:80px 20px}
+.container{max-width:1100px;margin:0 auto}
+.sec-hdr{text-align:center;margin-bottom:50px}
+.sec-badge{
+  display:inline-block;
+  background:var(--yellow);color:var(--blue);
+  font-weight:900;font-size:.82rem;
+  padding:6px 18px;border-radius:20px;
+  text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;
+}
+.sec-title{
+  font-size:clamp(1.8rem,4vw,3rem);
+  color:var(--blue);margin-bottom:10px;
+  font-family:Georgia,serif;font-weight:900;
+}
+.sec-desc{font-size:1.05rem;color:#555;max-width:600px;margin:0 auto}
+
+/* ============================================================
+   WARM-UP
+   ============================================================ */
+.warmup-section{background:linear-gradient(180deg,#e8f4fd 0%,#fff9e6 100%)}
+.warmup-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:24px;
+}
+.bubble-card{
+  background:#fff;border-radius:var(--r);
+  padding:28px 24px;text-align:center;
+  box-shadow:var(--sh);cursor:pointer;
+  transition:transform .25s,box-shadow .25s;
+  border:3px solid transparent;
+}
+.bubble-card:hover{transform:translateY(-6px);box-shadow:var(--shl);border-color:var(--yellow)}
+.bubble-icon{font-size:2.6rem;margin-bottom:12px}
+.bubble-card h3{font-size:1rem;color:var(--blue);font-weight:800;margin-bottom:12px}
+.bubble-hint{
+  background:linear-gradient(135deg,#FFF8DC,#FFF0C0);
+  border-left:4px solid var(--yellow);
+  border-radius:10px;padding:12px;
+  font-size:.9rem;color:#555;text-align:left;margin-top:10px;
+}
+.bubble-tap{display:block;font-size:.82rem;color:#999;margin-top:10px;font-style:italic}
+.hidden{display:none!important}
+
+/* ============================================================
+   TOUR
+   ============================================================ */
+.tour-section{background:linear-gradient(180deg,#fff 0%,#f0f8ff 100%)}
+.prog-wrap{text-align:center;margin-bottom:40px}
+.prog-label{font-weight:700;color:var(--blue);margin-bottom:8px;font-size:1rem}
+.prog-bar{background:#e0e0e0;height:18px;border-radius:30px;max-width:500px;margin:0 auto;overflow:hidden}
+.prog-fill{height:100%;width:0%;border-radius:30px;background:linear-gradient(90deg,var(--green),var(--yellow));transition:width .6s ease}
+
+.tour-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+  gap:24px;
+}
+.tour-card{
+  background:#fff;border-radius:var(--r);
+  overflow:hidden;box-shadow:var(--sh);
+  cursor:pointer;transition:transform .25s,box-shadow .25s;
+  position:relative;border:3px solid transparent;
+}
+.tour-card:hover{transform:translateY(-8px) scale(1.02);box-shadow:var(--shl);border-color:var(--yellow)}
+.tc-img{height:120px;display:flex;align-items:center;justify-content:center}
+.tc-emoji{font-size:3.5rem;filter:drop-shadow(0 4px 8px rgba(0,0,0,.2))}
+.tc-body{padding:16px 18px}
+.stop-num{font-size:.74rem;font-weight:800;color:var(--orange);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px}
+.tc-body h3{font-size:1.1rem;color:var(--blue);font-weight:900;font-family:Georgia,serif}
+.tc-body p{font-size:.84rem;color:#777;margin:4px 0 12px}
+.btn-explore{
+  background:var(--blue);color:var(--yellow);
+  border:none;border-radius:20px;
+  padding:6px 16px;font-size:.85rem;font-weight:700;
+  cursor:pointer;transition:background .2s,transform .15s;
+}
+.btn-explore:hover{background:var(--red);transform:scale(1.05)}
+.visited-badge{
+  position:absolute;top:10px;right:10px;
+  background:var(--green);color:#fff;
+  font-weight:800;font-size:.74rem;
+  padding:4px 10px;border-radius:20px;
+  box-shadow:0 2px 8px rgba(0,0,0,.15);
+}
+.tour-card.visited{border-color:var(--green)}
+
+/* ============================================================
+   MODAL
+   ============================================================ */
+.modal-ov{
+  position:fixed;inset:0;z-index:2000;
+  background:rgba(0,0,80,.55);
+  display:flex;align-items:center;justify-content:center;
+  padding:20px;animation:fadeIn .25s ease;
+}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal-box{
+  background:#fff;border-radius:24px;
+  max-width:560px;width:100%;
+  box-shadow:0 24px 80px rgba(0,0,0,.3);
+  overflow:hidden;position:relative;
+  animation:slideUp .3s ease;
+  max-height:90vh;overflow-y:auto;
+}
+@keyframes slideUp{from{transform:translateY(40px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-close{
+  position:absolute;top:14px;right:14px;
+  background:#f0f0f0;border:none;
+  width:36px;height:36px;border-radius:50%;
+  font-size:1rem;cursor:pointer;font-weight:700;
+  transition:background .2s,transform .15s;z-index:10;
+}
+.modal-close:hover{background:var(--red);color:#fff;transform:scale(1.1)}
+.m-hdr{
+  padding:28px 28px 20px;
+  text-align:center;
+}
+.m-hdr .m-emoji{font-size:3.8rem;display:block;margin-bottom:8px}
+.m-hdr h2{font-size:1.7rem;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.3);font-family:Georgia,serif;font-weight:900}
+.m-body{padding:24px 28px}
+.m-fact{
+  background:linear-gradient(135deg,#f8f9ff,#e8f0ff);
+  border-radius:12px;padding:13px 16px;
+  margin-bottom:12px;border-left:4px solid var(--blue);
+}
+.m-fact p{font-size:.94rem;color:#333}
+.m-fact p::before{content:'📌 '}
+.m-q{
+  background:linear-gradient(135deg,#fffde7,#fff9c4);
+  border-radius:12px;padding:13px 16px;margin:16px 0;
+  border-left:4px solid var(--yellow);
+}
+.m-q p{font-weight:700;color:var(--blue);font-size:.94rem}
+.m-q p::before{content:'❓ '}
+.m-react{
+  background:linear-gradient(135deg,#f0fff4,#d4edda);
+  border-radius:12px;padding:13px 16px;
+  border-left:4px solid var(--green);
+}
+.m-react p{font-size:.91rem;color:#2d6a4f}
+.m-react p::before{content:'💬 '}
+.m-btns{display:flex;gap:12px;margin-top:20px;flex-wrap:wrap}
+.m-btn{
+  flex:1;padding:12px 18px;border-radius:20px;border:none;
+  font-weight:700;font-size:.9rem;cursor:pointer;
+  transition:transform .15s,box-shadow .15s;
+}
+.m-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.15)}
+.m-btn-p{background:var(--blue);color:var(--yellow)}
+.m-btn-s{background:var(--yellow);color:var(--blue)}
+
+/* ============================================================
+   VOCABULARY
+   ============================================================ */
+.vocab-section{background:linear-gradient(180deg,#fff9e6 0%,#e8f8f0 100%)}
+.vocab-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(155px,1fr));
+  gap:18px;
+}
+.vcard{
+  background:#fff;border-radius:var(--r);
+  padding:22px 14px;text-align:center;
+  box-shadow:var(--sh);cursor:pointer;
+  transition:transform .25s,box-shadow .25s;
+  border-top:5px solid var(--vc,var(--blue));
+}
+.vcard:hover{transform:translateY(-6px) scale(1.04);box-shadow:var(--shl)}
+.vcard .vi{font-size:2.6rem;margin-bottom:10px;display:block}
+.vcard .vw{font-size:1.05rem;color:var(--blue);display:block;margin-bottom:4px;font-weight:900}
+.vcard .vt{font-size:.8rem;color:#888;font-style:italic;display:block}
+.vcard .vs{
+  font-size:.78rem;color:#555;margin-top:10px;
+  background:#f8f9ff;border-radius:8px;padding:8px;
+  display:none;
+}
+.vcard.active .vs{display:block}
+
+/* ============================================================
+   ACTIVITIES
+   ============================================================ */
+.activities-section{background:linear-gradient(180deg,#f0f4ff 0%,#fff 100%)}
+.act-tabs{
+  display:flex;gap:12px;justify-content:center;
+  margin-bottom:32px;flex-wrap:wrap;
+}
+.act-tab{
+  background:#fff;border:2px solid var(--blue);
+  color:var(--blue);font-weight:700;
+  padding:10px 22px;border-radius:30px;
+  cursor:pointer;font-size:.94rem;
+  transition:all .2s;
+}
+.act-tab:hover,.act-tab.on{background:var(--blue);color:var(--yellow)}
+.act-panel{display:none;animation:fadeIn .3s ease}
+.act-panel.on{display:block}
+.acard{
+  background:#fff;border-radius:24px;
+  padding:36px 32px;box-shadow:var(--sh);
+  max-width:700px;margin:0 auto;
+  border:3px solid #e8f0ff;
+}
+.at{font-size:1.55rem;color:var(--blue);margin-bottom:8px;font-family:Georgia,serif;font-weight:900}
+.as{color:#666;margin-bottom:24px}
+
+/* Quiz */
+.qi{margin-bottom:22px}
+.qi p{font-weight:700;color:var(--dark);margin-bottom:10px}
+.qopts{display:flex;flex-direction:column;gap:8px}
+.qopt{
+  background:#f8f9ff;border:2px solid #dce8ff;
+  border-radius:12px;padding:11px 16px;
+  cursor:pointer;font-weight:600;font-size:.92rem;
+  transition:all .2s;text-align:left;
+}
+.qopt:hover{background:#e0ecff;border-color:var(--blue)}
+.qopt.sel{background:#dce8ff;border-color:var(--blue);color:var(--blue)}
+.qopt.ok{background:#d4edda;border-color:var(--green);color:#155724}
+.qopt.bad{background:#f8d7da;border-color:var(--red);color:#721c24}
+
+/* T/F */
+.tfi{margin-bottom:20px}
+.tfi p{font-weight:700;margin-bottom:10px}
+.tf-btns{display:flex;gap:10px}
+.tfb{
+  flex:1;padding:10px;border-radius:12px;border:2px solid #ddd;
+  cursor:pointer;font-weight:700;font-size:.94rem;
+  transition:all .2s;
+}
+.tfb.is-t{background:#f0fff4;border-color:var(--green);color:var(--green)}
+.tfb.is-f{background:#fff5f5;border-color:var(--red);color:var(--red)}
+.tfb.sel-t{background:#d4edda;border-color:var(--green);color:#155724;font-weight:900}
+.tfb.sel-f{background:#f8d7da;border-color:var(--red);color:#721c24;font-weight:900}
+.tfb.ok{background:var(--green)!important;color:#fff!important;border-color:var(--green)!important}
+.tfb.bad{background:var(--red)!important;color:#fff!important;border-color:var(--red)!important}
+
+/* Match */
+.match-wrap{display:flex;gap:16px;margin-bottom:20px;justify-content:center;flex-wrap:wrap}
+.match-col{display:flex;flex-direction:column;gap:10px;flex:1;min-width:160px;max-width:220px}
+.mitem{
+  background:#f8f9ff;border:2px solid #dce8ff;
+  border-radius:12px;padding:12px 14px;
+  cursor:pointer;font-weight:700;font-size:.92rem;
+  text-align:center;transition:all .2s;
+}
+.mitem:hover{background:#e0ecff;border-color:var(--blue)}
+.mitem.sel{background:var(--yellow);border-color:var(--orange);color:var(--blue)}
+.mitem.done{background:#d4edda;border-color:var(--green);color:#155724;cursor:default}
+.mitem.bad{background:#f8d7da;border-color:var(--red);color:#721c24}
+
+/* Score */
+.score-box{
+  text-align:center;padding:16px;
+  background:linear-gradient(135deg,#fffde7,#fff9c4);
+  border-radius:14px;font-size:1.1rem;font-weight:700;
+  color:var(--blue);margin:16px 0;
+  border:2px solid var(--yellow);
+}
+.btn-act{
+  background:var(--blue);color:var(--yellow);
+  border:none;border-radius:20px;
+  padding:12px 32px;font-size:1rem;font-weight:700;
+  cursor:pointer;transition:all .2s;margin-top:8px;
+  display:inline-block;
+}
+.btn-act:hover{background:var(--red);transform:translateY(-2px)}
+.btn-reset{background:var(--green)!important}
+.mt8{margin-top:8px;margin-left:8px}
+
+/* ============================================================
+   REFLECTION
+   ============================================================ */
+.reflect-section{background:linear-gradient(180deg,#fff 0%,#f0f4ff 100%)}
+.rgrid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+  gap:24px;margin-bottom:32px;
+}
+.rcard{
+  background:#fff;border-radius:var(--r);
+  padding:24px 22px;box-shadow:var(--sh);
+  border-top:5px solid var(--blue);
+  transition:transform .2s;
+}
+.rcard:hover{transform:translateY(-4px)}
+.rnum{
+  width:36px;height:36px;border-radius:50%;
+  background:var(--blue);color:var(--yellow);
+  font-weight:900;font-size:1.1rem;
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:12px;
+}
+.rq{font-weight:700;color:var(--blue);font-size:.94rem;margin-bottom:14px}
+.rtxt{
+  width:100%;border:2px solid #dce8ff;border-radius:12px;
+  padding:10px 14px;font-size:.9rem;
+  resize:none;height:90px;color:#333;
+  transition:border-color .2s;font-family:'Trebuchet MS',Tahoma,sans-serif;
+}
+.rtxt:focus{outline:none;border-color:var(--blue)}
+.r-sub{text-align:center}
+.btn-reflect{
+  background:linear-gradient(135deg,var(--blue),#0050CC);
+  color:var(--yellow);border:none;
+  border-radius:30px;padding:14px 40px;
+  font-size:1.1rem;font-weight:700;
+  cursor:pointer;
+  transition:all .2s;
+  box-shadow:0 6px 20px rgba(0,48,135,.3);
+}
+.btn-reflect:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(0,48,135,.4)}
+.r-ok{
+  background:linear-gradient(135deg,#d4edda,#c3e6cb);
+  color:#155724;font-weight:700;
+  padding:14px 24px;border-radius:14px;
+  margin-top:16px;font-size:1rem;
+  border:2px solid var(--green);
+  animation:popIn .4s ease;
+}
+@keyframes popIn{0%{transform:scale(.8);opacity:0}100%{transform:scale(1);opacity:1}}
+
+/* ============================================================
+   FINAL
+   ============================================================ */
+.final-section{
+  background:linear-gradient(160deg,#003087 0%,#0070E0 50%,#FCD116 100%);
+  padding:80px 20px;
+}
+.fcard{
+  background:rgba(255,255,255,.97);border-radius:32px;
+  max-width:640px;margin:0 auto;
+  padding:52px 40px;text-align:center;
+  box-shadow:0 20px 60px rgba(0,0,0,.25);
+  position:relative;overflow:hidden;
+}
+.fcard-emoji{font-size:5rem;display:block;margin-bottom:16px;animation:spin 3s linear infinite}
+@keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+.ftitle2{font-size:2.2rem;color:var(--blue);margin-bottom:16px;font-family:Georgia,serif;font-weight:900}
+.fmsg{font-size:1.05rem;color:#444;line-height:1.7;margin-bottom:20px}
+.fstars{font-size:2rem;letter-spacing:6px;margin-bottom:28px}
+.fbtns{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.fbtn{
+  display:inline-block;padding:14px 32px;border-radius:30px;
+  font-weight:900;font-size:1rem;
+  text-decoration:none;transition:all .2s;
+  background:var(--blue);color:var(--yellow);
+  box-shadow:0 6px 20px rgba(0,48,135,.3);
+}
+.fbtn:hover{transform:translateY(-4px);box-shadow:0 12px 30px rgba(0,48,135,.4)}
+.fbtn-alt{background:var(--yellow);color:var(--blue)}
+.confetti-piece{
+  position:absolute;border-radius:50%;
+  animation:cfall 3s linear infinite;
+}
+@keyframes cfall{
+  0%{transform:translateY(-20px) rotate(0deg);opacity:1}
+  100%{transform:translateY(500px) rotate(720deg);opacity:0}
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+.footer{
+  background:var(--blue);color:rgba(255,255,255,.8);
+  text-align:center;padding:28px 20px;
+  font-size:.9rem;line-height:1.8;
+}
+
+/* ============================================================
+   SCROLL ANIMATIONS
+   ============================================================ */
+.fade-in{
+  opacity:0;transform:translateY(30px);
+  transition:opacity .5s ease,transform .5s ease;
+}
+.fade-in.visible{opacity:1;transform:translateY(0)}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media(max-width:768px){
+  .acard{padding:24px 16px}
+  .match-wrap{flex-direction:column;align-items:center}
+  .match-col{max-width:100%;width:100%}
+  .fcard{padding:36px 20px}
+  .rgrid{grid-template-columns:1fr}
+}
+@media(max-width:480px){
+  .tour-grid{grid-template-columns:repeat(2,1fr)}
+  .vocab-grid{grid-template-columns:repeat(2,1fr)}
+  .m-body{padding:16px 18px}
+  .m-btns{flex-direction:column}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="navbar" id="navbar">
+  <div class="nav-logo">&#127464;&#127476; Colombia Tour</div>
+  <ul class="nav-links" id="navLinks">
+
+    <!-- Home -->
+    <li><a href="#home" onclick="closeAllDrops()">&#127968; Home</a></li>
+
+    <!-- Tour dropdown -->
+    <li id="drop-tour">
+      <button onclick="toggleDrop('drop-tour')">
+        &#9992;&#65039; Tour <span class="drop-arrow">&#9660;</span>
+      </button>
+      <div class="dropdown">
+        <div class="drop-label">Sections</div>
+        <a href="#warmup" onclick="closeAllDrops()"><span class="di">&#129300;</span>Warm-Up</a>
+        <a href="#tour"   onclick="closeAllDrops()"><span class="di">&#128506;&#65039;</span>Virtual Tour</a>
+        <div class="drop-divider"></div>
+        <div class="drop-label">Tour Stops</div>
+        <a href="#tour" onclick="closeAllDrops();scrollAndOpen(1)"><span class="di">&#127961;&#65039;</span>Bogot&#225;</a>
+        <a href="#tour" onclick="closeAllDrops();scrollAndOpen(2)"><span class="di">&#127958;&#65039;</span>Cartagena</a>
+        <a href="#tour" onclick="closeAllDrops();scrollAndOpen(3)"><span class="di">&#127800;</span>Medell&#237;n</a>
+        <a href="#tour" onclick="closeAllDrops();scrollAndOpen(4)"><span class="di">&#9749;</span>Coffee Region</a>
+        <a href="#tour" onclick="closeAllDrops();scrollAndOpen(5)"><span class="di">&#127807;</span>Amazon Region</a>
+      </div>
+    </li>
+
+    <!-- Explore dropdown -->
+    <li id="drop-explore">
+      <button onclick="toggleDrop('drop-explore')">
+        &#127758; Explore <span class="drop-arrow">&#9660;</span>
+      </button>
+      <div class="dropdown">
+        <div class="drop-label">More Stops</div>
+        <a href="#tour" onclick="closeAllDrops();scrollAndOpen(6)"><span class="di">&#127754;</span>Caribbean Coast</a>
+        <a href="#tour" onclick="closeAllDrops();scrollAndOpen(7)"><span class="di">&#127956;&#65039;</span>Andes Mountains</a>
+        <a href="#tour" onclick="closeAllDrops();scrollAndOpen(8)"><span class="di">&#129412;</span>Animals</a>
+        <a href="#tour" onclick="closeAllDrops();scrollAndOpen(9)"><span class="di">&#127858;</span>Traditional Food</a>
+        <a href="#tour" onclick="closeAllDrops();scrollAndOpen(10)"><span class="di">&#127881;</span>Festivals &amp; Culture</a>
+        <div class="drop-divider"></div>
+        <a href="#vocabulary" onclick="closeAllDrops()"><span class="di">&#128218;</span>Vocabulary</a>
+      </div>
+    </li>
+
+    <!-- Activities dropdown -->
+    <li id="drop-acts">
+      <button onclick="toggleDrop('drop-acts')">
+        &#127918; Activities <span class="drop-arrow">&#9660;</span>
+      </button>
+      <div class="dropdown">
+        <div class="drop-label">Fun Games</div>
+        <a href="#activities" onclick="closeAllDrops();setTimeout(function(){showActNav('quiz')},300)">
+          <span class="di">&#129504;</span>Quiz
+        </a>
+        <a href="#activities" onclick="closeAllDrops();setTimeout(function(){showActNav('tf')},300)">
+          <span class="di">&#9989;</span>True or False
+        </a>
+        <a href="#activities" onclick="closeAllDrops();setTimeout(function(){showActNav('match')},300)">
+          <span class="di">&#128279;</span>Match It!
+        </a>
+        <div class="drop-divider"></div>
+        <a href="#reflection" onclick="closeAllDrops()"><span class="di">&#128172;</span>Reflection</a>
+        <a href="#final"      onclick="closeAllDrops()"><span class="di">&#127942;</span>Final Section</a>
+      </div>
+    </li>
+
+  </ul>
+  <button class="nav-toggle" id="navToggle" onclick="toggleMobileNav()">&#9776;</button>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-bg">
+    <div class="floating-emoji" style="--delay:0s;--x:10%;--y:20%">🦜</div>
+    <div class="floating-emoji" style="--delay:1s;--x:85%;--y:15%">☕</div>
+    <div class="floating-emoji" style="--delay:2s;--x:75%;--y:70%">🌺</div>
+    <div class="floating-emoji" style="--delay:.5s;--x:20%;--y:75%">🏔️</div>
+    <div class="floating-emoji" style="--delay:1.5s;--x:50%;--y:10%">🌊</div>
+    <div class="floating-emoji" style="--delay:2.5s;--x:5%;--y:55%">🦋</div>
+    <div class="floating-emoji" style="--delay:3s;--x:92%;--y:45%">🌿</div>
+    <div class="floating-emoji" style="--delay:.8s;--x:40%;--y:82%">🎉</div>
+  </div>
+  <div class="hero-content">
+    <div class="hero-flag">🇨🇴</div>
+    <h1 class="hero-title">Virtual Tour Around<span class="hl">Colombia!</span></h1>
+    <p class="hero-sub">Welcome, young explorers! 🌟<br>Get ready to discover the amazing country of Colombia —<br>its cities, animals, food, and much more!</p>
+    <a href="#warmup" class="btn-start">Start the Tour! <span class="btn-arrow">🚀</span></a>
+  </div>
+  <div class="scroll-hint">Scroll down ↓</div>
+</section>
+
+<!-- WARM-UP -->
+<section class="section warmup-section" id="warmup">
+  <div class="container">
+    <div class="sec-hdr">
+      <span class="sec-badge">🤔 Think First!</span>
+      <h2 class="sec-title">Warm-Up Time!</h2>
+      <p class="sec-desc">Before we start, let's see what you already know about Colombia! Click each question to reveal a hint.</p>
+    </div>
+    <div class="warmup-grid">
+      <div class="bubble-card fade-in" onclick="toggleBubble(this)">
+        <div class="bubble-icon">🗺️</div>
+        <h3>What do you know about Colombia?</h3>
+        <div class="bubble-hint hidden">Colombia is a country in South America. It is known for coffee, flowers, and friendly people!</div>
+        <span class="bubble-tap">Tap to think! 💭</span>
+      </div>
+      <div class="bubble-card fade-in" onclick="toggleBubble(this)">
+        <div class="bubble-icon">🏙️</div>
+        <h3>Do you know any cities in Colombia?</h3>
+        <div class="bubble-hint hidden">Bogotá is the capital city. Medellín, Cartagena, and Cali are also very famous!</div>
+        <span class="bubble-tap">Tap to think! 💭</span>
+      </div>
+      <div class="bubble-card fade-in" onclick="toggleBubble(this)">
+        <div class="bubble-icon">🦜</div>
+        <h3>What animals can you find in Colombia?</h3>
+        <div class="bubble-hint hidden">Colombia has jaguars, pink dolphins, toucans, butterflies, and the famous Andean condor!</div>
+        <span class="bubble-tap">Tap to think! 💭</span>
+      </div>
+      <div class="bubble-card fade-in" onclick="toggleBubble(this)">
+        <div class="bubble-icon">🍲</div>
+        <h3>What Colombian food do you know?</h3>
+        <div class="bubble-hint hidden">Arepas, bandeja paisa, empanadas, and hot chocolate are very popular Colombian foods!</div>
+        <span class="bubble-tap">Tap to think! 💭</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TOUR -->
+<section class="section tour-section" id="tour">
+  <div class="container">
+    <div class="sec-hdr">
+      <span class="sec-badge">✈️ Let's Explore!</span>
+      <h2 class="sec-title">Virtual Tour Stops</h2>
+      <p class="sec-desc">Click each stop to learn amazing facts about Colombia!</p>
+    </div>
+    <div class="prog-wrap">
+      <div class="prog-label">Tour Progress: <span id="progTxt">0 / 10</span></div>
+      <div class="prog-bar"><div class="prog-fill" id="progFill"></div></div>
+    </div>
+    <div class="tour-grid" id="tourGrid">
+      <!-- Built by JS -->
+    </div>
+  </div>
+</section>
+
+<!-- VOCABULARY -->
+<section class="section vocab-section" id="vocabulary">
+  <div class="container">
+    <div class="sec-hdr">
+      <span class="sec-badge">📚 New Words!</span>
+      <h2 class="sec-title">Vocabulary Time</h2>
+      <p class="sec-desc">Learn important words about Colombia. Click a card to see an example sentence!</p>
+    </div>
+    <div class="vocab-grid" id="vocabGrid"></div>
+  </div>
+</section>
+
+<!-- ACTIVITIES -->
+<section class="section activities-section" id="activities">
+  <div class="container">
+    <div class="sec-hdr">
+      <span class="sec-badge">🎮 Play & Learn!</span>
+      <h2 class="sec-title">Fun Activities</h2>
+      <p class="sec-desc">Test your knowledge with these fun games!</p>
+    </div>
+    <div class="act-tabs">
+      <button class="act-tab on" onclick="showAct('quiz',this)">🧠 Quiz</button>
+      <button class="act-tab" onclick="showAct('tf',this)">✅ True or False</button>
+      <button class="act-tab" onclick="showAct('match',this)">🔗 Match It!</button>
+    </div>
+
+    <!-- QUIZ -->
+    <div class="act-panel on" id="act-quiz">
+      <div class="acard">
+        <h3 class="at">🧠 Colombia Quiz!</h3>
+        <p class="as">Choose the correct answer for each question.</p>
+        <div id="quizContainer"></div>
+        <div class="score-box hidden" id="quizScore"></div>
+        <button class="btn-act" id="quizSubmit" onclick="submitQuiz()">Check Answers! ✓</button>
+        <button class="btn-act btn-reset mt8 hidden" id="quizReset" onclick="buildQuiz()">Try Again 🔄</button>
+      </div>
+    </div>
+
+    <!-- TRUE/FALSE -->
+    <div class="act-panel" id="act-tf">
+      <div class="acard">
+        <h3 class="at">✅ True or False?</h3>
+        <p class="as">Read each fact and decide: is it TRUE or FALSE?</p>
+        <div id="tfContainer"></div>
+        <div class="score-box hidden" id="tfScore"></div>
+        <button class="btn-act" id="tfSubmit" onclick="submitTF()">Check Answers! ✓</button>
+        <button class="btn-act btn-reset mt8 hidden" id="tfReset" onclick="buildTF()">Try Again 🔄</button>
+      </div>
+    </div>
+
+    <!-- MATCH -->
+    <div class="act-panel" id="act-match">
+      <div class="acard">
+        <h3 class="at">🔗 Match It!</h3>
+        <p class="as">Click a word on the left, then click its matching image on the right!</p>
+        <div class="match-wrap">
+          <div class="match-col" id="matchWords"></div>
+          <div class="match-col" id="matchEmojis"></div>
+        </div>
+        <div class="score-box hidden" id="matchScore"></div>
+        <button class="btn-act btn-reset hidden" id="matchReset" onclick="buildMatch()">Play Again 🔄</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- REFLECTION -->
+<section class="section reflect-section" id="reflection">
+  <div class="container">
+    <div class="sec-hdr">
+      <span class="sec-badge">💬 Let's Talk!</span>
+      <h2 class="sec-title">Think & Share</h2>
+      <p class="sec-desc">Answer these questions about your virtual tour experience!</p>
+    </div>
+    <div class="rgrid">
+      <div class="rcard fade-in">
+        <div class="rnum">1</div>
+        <p class="rq">What place did you like the most? Why?</p>
+        <textarea class="rtxt" placeholder="Write your answer here... ✍️" maxlength="200"></textarea>
+      </div>
+      <div class="rcard fade-in">
+        <div class="rnum">2</div>
+        <p class="rq">What new fact did you learn today?</p>
+        <textarea class="rtxt" placeholder="Write your answer here... ✍️" maxlength="200"></textarea>
+      </div>
+      <div class="rcard fade-in">
+        <div class="rnum">3</div>
+        <p class="rq">What surprised you about Colombia?</p>
+        <textarea class="rtxt" placeholder="Write your answer here... ✍️" maxlength="200"></textarea>
+      </div>
+      <div class="rcard fade-in">
+        <div class="rnum">4</div>
+        <p class="rq">Would you like to travel to Colombia? Where would you go?</p>
+        <textarea class="rtxt" placeholder="Write your answer here... ✍️" maxlength="200"></textarea>
+      </div>
+    </div>
+    <div class="r-sub">
+      <button class="btn-reflect" onclick="saveReflections()">Save My Thoughts! 💾</button>
+      <div class="r-ok hidden" id="rOk">🎉 Great job! Your thoughts are saved!</div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL -->
+<section class="section final-section" id="final">
+  <div class="container">
+    <div class="fcard" id="fcard">
+      <span class="fcard-emoji">🏆</span>
+      <h2 class="ftitle2">Congratulations, Explorer!</h2>
+      <p class="fmsg">You completed the Virtual Tour Around Colombia! 🇨🇴<br>You learned about amazing cities, animals, food, and culture.<br>Colombia is truly a wonderful country!</p>
+      <div class="fstars">⭐⭐⭐⭐⭐</div>
+      <div class="fbtns">
+        <a href="#home" class="fbtn">🔁 Restart Tour</a>
+        <a href="#tour" class="fbtn fbtn-alt">📍 Review Stops</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <p>🇨🇴 Virtual Tour Around Colombia | Made for Young Learners with ❤️</p>
+  <p>Explore · Learn · Discover</p>
+</footer>
+
+<!-- MODAL -->
+<div class="modal-ov hidden" id="stopModal" onclick="closeModal(event)">
+  <div class="modal-box" id="modalBox">
+    <button class="modal-close" onclick="closeModalBtn()">✕</button>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   DATA
+   ============================================================ */
+const STOPS = {
+  1:{title:'Bogotá',emoji:'🏙️',color:'linear-gradient(135deg,#FCD116,#CE1126)',
+    facts:['Bogotá is the capital city of Colombia. It has about 8 million people!',
+           'It is one of the highest capital cities in the world — it sits 2,600 meters above sea level!'],
+    q:'What do you think it feels like to live in such a high city?',
+    r:'Would you like to visit Bogotá? What would you like to see there?'},
+  2:{title:'Cartagena',emoji:'🏖️',color:'linear-gradient(135deg,#00B4D8,#FFA500)',
+    facts:['Cartagena is a city on the Caribbean coast with beautiful old walls and colorful buildings.',
+           'It was built more than 400 years ago and is a UNESCO World Heritage Site!'],
+    q:'Why do you think old cities are important to protect?',
+    r:'What is new for you about Cartagena?'},
+  3:{title:'Medellín',emoji:'🌸',color:'linear-gradient(135deg,#56ab2f,#a8e063)',
+    facts:['Medellín is called the "City of Eternal Spring" because the weather is always beautiful!',
+           'Every year, Medellín has a famous Flower Festival where people carry huge flower decorations.'],
+    q:'Why do you think they call it the "City of Eternal Spring"?',
+    r:'Would you like to visit the Flower Festival? Why or why not?'},
+  4:{title:'Coffee Region',emoji:'☕',color:'linear-gradient(135deg,#6f4e37,#c8a96e)',
+    facts:['Colombia is one of the most famous countries in the world for its coffee!',
+           'The Coffee Region has green mountains, colorful towns, and very friendly people.'],
+    q:'Do you drink coffee? Do you know someone who does?',
+    r:'What surprised you about the Coffee Region?'},
+  5:{title:'Amazon Region',emoji:'🌿',color:'linear-gradient(135deg,#11998e,#38ef7d)',
+    facts:['Part of the Amazon Rainforest is in Colombia! It is one of the largest forests in the world.',
+           'The Amazon is home to thousands of animals and plants — many we have not even discovered yet!'],
+    q:'Why is it important to protect the Amazon Rainforest?',
+    r:'What animals do you think live in the Amazon?'},
+  6:{title:'Caribbean Coast',emoji:'🌊',color:'linear-gradient(135deg,#2196F3,#00E5FF)',
+    facts:['The Caribbean Coast of Colombia has beautiful blue water, white sand beaches, and tropical islands!',
+           'The Rosario Islands are a popular place to see colorful fish and coral reefs in the sea.'],
+    q:'What would you do first if you visited a beautiful beach?',
+    r:'Would you like to swim in the Caribbean Sea?'},
+  7:{title:'Andes Mountains',emoji:'🏔️',color:'linear-gradient(135deg,#8e9eab,#eef2f3)',
+    facts:['The Andes Mountains cross through Colombia from south to north. They are very tall and beautiful!',
+           'Many Colombian cities like Bogotá and Medellín are built in the Andes Mountains.'],
+    q:'Have you ever seen a mountain? What was it like?',
+    r:'What do you like about mountains?'},
+  8:{title:'Colombian Animals',emoji:'🦜',color:'linear-gradient(135deg,#f7971e,#ffd200)',
+    facts:['Colombia has more species of birds than any other country — over 1,900 species!',
+           'You can find pink dolphins, jaguars, giant anteaters, toucans, and colorful butterflies in Colombia.'],
+    q:'Which Colombian animal would you most like to see?',
+    r:'What new animal did you learn about today?'},
+  9:{title:'Traditional Food',emoji:'🍲',color:'linear-gradient(135deg,#ff6b6b,#feca57)',
+    facts:['Arepas are a very popular Colombian food. They are round corn cakes you can eat at any meal!',
+           'Bandeja Paisa is a big, famous dish with rice, beans, egg, meat, and plantains. Very delicious!'],
+    q:'Have you ever eaten Colombian food? What would you like to try?',
+    r:'Which food looks most delicious to you?'},
+  10:{title:'Festivals & Culture',emoji:'🎉',color:'linear-gradient(135deg,#a855f7,#ec4899)',
+    facts:['Colombia has many colorful festivals! The Barranquilla Carnival is one of the biggest in the world — people dance for 4 days!',
+           'Cumbia is a traditional Colombian music and dance that mixes African, Indigenous, and European rhythms!'],
+    q:'Do you have a special festival in your city or country?',
+    r:'What do you like most about Colombian culture?'}
+};
+
+const STOP_META = [
+  {id:1,sub:'The capital city of Colombia',      bg:'linear-gradient(135deg,#FCD116,#CE1126)'},
+  {id:2,sub:'A beautiful city by the sea',       bg:'linear-gradient(135deg,#00B4D8,#FFA500)'},
+  {id:3,sub:'The city of eternal spring',        bg:'linear-gradient(135deg,#56ab2f,#a8e063)'},
+  {id:4,sub:'The land of the best coffee',       bg:'linear-gradient(135deg,#6f4e37,#c8a96e)'},
+  {id:5,sub:'The largest rainforest on Earth',   bg:'linear-gradient(135deg,#11998e,#38ef7d)'},
+  {id:6,sub:'Blue water and golden beaches',     bg:'linear-gradient(135deg,#2196F3,#00E5FF)'},
+  {id:7,sub:'Tall and majestic mountains',       bg:'linear-gradient(135deg,#8e9eab,#eef2f3)'},
+  {id:8,sub:'Wild and wonderful creatures',      bg:'linear-gradient(135deg,#f7971e,#ffd200)'},
+  {id:9,sub:'Delicious Colombian flavors',       bg:'linear-gradient(135deg,#ff6b6b,#feca57)'},
+  {id:10,sub:'Music, dance, and traditions',     bg:'linear-gradient(135deg,#a855f7,#ec4899)'}
+];
+
+/* ============================================================
+   NAVBAR — DROPDOWN
+   ============================================================ */
+function toggleDrop(id){
+  const li=document.getElementById(id);
+  const isOpen=li.classList.contains('open');
+  closeAllDrops();
+  if(!isOpen) li.classList.add('open');
+}
+function closeAllDrops(){
+  document.querySelectorAll('.nav-links>li.open').forEach(l=>l.classList.remove('open'));
+}
+function toggleMobileNav(){
+  document.getElementById('navLinks').classList.toggle('open');
+  closeAllDrops();
+}
+// Close dropdowns when clicking outside
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.navbar')) closeAllDrops();
+});
+// Close mobile nav on any link click
+document.querySelectorAll('.nav-links a').forEach(a=>
+  a.addEventListener('click',()=>{
+    document.getElementById('navLinks').classList.remove('open');
+  })
+);
+// Helper: scroll to tour and open a stop after short delay
+function scrollAndOpen(id){
+  document.getElementById('tour').scrollIntoView({behavior:'smooth',block:'start'});
+  setTimeout(()=>{
+    const card=document.querySelector('.tour-card[data-stop="'+id+'"]');
+    if(card) openStop(id,card);
+  },700);
+}
+// Helper: switch activity tab from nav
+function showActNav(name){
+  const tab=document.querySelector('.act-tab[onclick*="'+name+'"]');
+  if(tab) showAct(name,tab);
+}
+
+/* ============================================================
+   WARM-UP
+   ============================================================ */
+function toggleBubble(card){
+  const hint=card.querySelector('.bubble-hint');
+  const tap=card.querySelector('.bubble-tap');
+  hint.classList.toggle('hidden');
+  tap.textContent=hint.classList.contains('hidden')?'Tap to think! 💭':'Tap to hide! 🙈';
+}
+
+/* ============================================================
+   TOUR GRID
+   ============================================================ */
+let visited=new Set();
+
+function buildTourGrid(){
+  const grid=document.getElementById('tourGrid');
+  grid.innerHTML='';
+  STOP_META.forEach(m=>{
+    const s=STOPS[m.id];
+    const card=document.createElement('div');
+    card.className='tour-card fade-in'+(visited.has(m.id)?' visited':'');
+    card.dataset.stop=m.id;
+    card.innerHTML=`
+      <div class="tc-img" style="background:${m.bg}">
+        <span class="tc-emoji">${s.emoji}</span>
+      </div>
+      <div class="tc-body">
+        <span class="stop-num">Stop ${m.id}</span>
+        <h3>${s.title}</h3>
+        <p>${m.sub}</p>
+        <button class="btn-explore">Explore! →</button>
+      </div>
+      <div class="visited-badge${visited.has(m.id)?'':' hidden'}">✓ Visited!</div>
+    `;
+    card.addEventListener('click',()=>openStop(m.id,card));
+    grid.appendChild(card);
+  });
+  setupObserver();
+}
+
+function openStop(id,card){
+  if(!visited.has(id)){
+    visited.add(id);
+    card.classList.add('visited');
+    card.querySelector('.visited-badge').classList.remove('hidden');
+    updateProgress();
+  }
+  const s=STOPS[id];
+  document.getElementById('modalContent').innerHTML=`
+    <div class="m-hdr" style="background:${s.color}">
+      <span class="m-emoji">${s.emoji}</span>
+      <h2>${s.title}</h2>
+    </div>
+    <div class="m-body">
+      ${s.facts.map(f=>`<div class="m-fact"><p>${f}</p></div>`).join('')}
+      <div class="m-q"><p>${s.q}</p></div>
+      <div class="m-react"><p>${s.r}</p></div>
+      <div class="m-btns">
+        <button class="m-btn m-btn-s" onclick="closeModalBtn()">⬅ Back to Tour</button>
+        <button class="m-btn m-btn-p" onclick="nextStop(${id})">Next Stop ➡</button>
+      </div>
+    </div>`;
+  document.getElementById('stopModal').classList.remove('hidden');
+  document.body.style.overflow='hidden';
+}
+
+function nextStop(cur){
+  closeModalBtn();
+  const nxt=cur<10?cur+1:1;
+  const ncard=document.querySelector(`.tour-card[data-stop="${nxt}"]`);
+  if(ncard) setTimeout(()=>{
+    ncard.scrollIntoView({behavior:'smooth',block:'center'});
+    setTimeout(()=>openStop(nxt,ncard),400);
+  },200);
+}
+
+function closeModal(e){if(e.target.id==='stopModal')closeModalBtn();}
+function closeModalBtn(){
+  document.getElementById('stopModal').classList.add('hidden');
+  document.body.style.overflow='';
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModalBtn();});
+
+function updateProgress(){
+  const p=(visited.size/10)*100;
+  document.getElementById('progFill').style.width=p+'%';
+  document.getElementById('progTxt').textContent=`${visited.size} / 10`;
+}
+
+/* ============================================================
+   VOCABULARY
+   ============================================================ */
+const VOCAB=[
+  {icon:'🏙️',word:'City',       tr:'ciudad',     c:'#3B82F6',s:'Bogotá is the capital city of Colombia.'},
+  {icon:'⛰️', word:'Mountain',  tr:'montaña',    c:'#8B5CF6',s:'The Andes Mountains are very high.'},
+  {icon:'🌿', word:'Rainforest',tr:'selva',       c:'#10B981',s:'The Amazon is a huge rainforest.'},
+  {icon:'🏖️', word:'Beach',     tr:'playa',      c:'#F59E0B',s:'Cartagena has beautiful beaches.'},
+  {icon:'🌊', word:'River',     tr:'río',         c:'#06B6D4',s:'The Amazon River is very long.'},
+  {icon:'🍲', word:'Food',      tr:'comida',     c:'#EF4444',s:'Colombian food is very delicious!'},
+  {icon:'🦜', word:'Animal',    tr:'animal',     c:'#F97316',s:'Colombia has many wild animals.'},
+  {icon:'🎭', word:'Tradition', tr:'tradición',  c:'#EC4899',s:'Cumbia is an important tradition.'},
+  {icon:'🎉', word:'Festival',  tr:'festival',   c:'#A855F7',s:'The Carnival is a famous festival.'},
+  {icon:'☕', word:'Coffee',    tr:'café',        c:'#92400E',s:'Colombian coffee is very good!'},
+  {icon:'🌍', word:'Culture',   tr:'cultura',    c:'#059669',s:'Colombia has a rich culture.'},
+  {icon:'🗺️', word:'Region',    tr:'región',     c:'#0EA5E9',s:'The Coffee Region is very beautiful.'},
+];
+
+function buildVocab(){
+  const g=document.getElementById('vocabGrid');
+  VOCAB.forEach(v=>{
+    const c=document.createElement('div');
+    c.className='vcard fade-in';
+    c.style.setProperty('--vc',v.c);
+    c.innerHTML=`<span class="vi">${v.icon}</span><span class="vw">${v.word}</span><span class="vt">(${v.tr})</span><div class="vs">${v.s}</div>`;
+    c.addEventListener('click',()=>{
+      const was=c.classList.contains('active');
+      document.querySelectorAll('.vcard.active').forEach(x=>x.classList.remove('active'));
+      if(!was)c.classList.add('active');
+    });
+    g.appendChild(c);
+  });
+}
+
+/* ============================================================
+   QUIZ
+   ============================================================ */
+const QQ=[
+  {q:'What is the capital city of Colombia?',opts:['Medellín','Bogotá','Cartagena','Cali'],a:1},
+  {q:'Medellín is called the "City of _____ Spring."',opts:['Early','Late','Eternal','Cold'],a:2},
+  {q:'Colombia is famous for producing which drink?',opts:['Tea','Juice','Coffee','Milk'],a:2},
+  {q:'Which animal can you find in the Amazon?',opts:['Polar bear','Pink dolphin','Tiger','Penguin'],a:1},
+  {q:'What is a very popular Colombian food made of corn?',opts:['Pizza','Sushi','Arepa','Burger'],a:2},
+  {q:'The Barranquilla Carnival is one of the biggest in the ___.', opts:['City','Country','School','World'],a:3}
+];
+let qAns=[],qDone=false;
+
+function buildQuiz(){
+  qAns=new Array(QQ.length).fill(null);qDone=false;
+  const c=document.getElementById('quizContainer');c.innerHTML='';
+  QQ.forEach((q,qi)=>{
+    const d=document.createElement('div');d.className='qi';
+    d.innerHTML=`<p>${qi+1}. ${q.q}</p><div class="qopts">${q.opts.map((o,oi)=>`<button class="qopt" data-qi="${qi}" data-oi="${oi}" onclick="pickQ(this,${qi},${oi})">${String.fromCharCode(65+oi)}) ${o}</button>`).join('')}</div>`;
+    c.appendChild(d);
+  });
+  document.getElementById('quizScore').classList.add('hidden');
+  document.getElementById('quizSubmit').classList.remove('hidden');
+  document.getElementById('quizReset').classList.add('hidden');
+}
+
+function pickQ(btn,qi,oi){
+  if(qDone)return;
+  document.querySelectorAll(`.qopt[data-qi="${qi}"]`).forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');qAns[qi]=oi;
+}
+
+function submitQuiz(){
+  if(qAns.some(a=>a===null)){alert('Please answer all questions first! 😊');return;}
+  qDone=true;let sc=0;
+  QQ.forEach((q,qi)=>{
+    document.querySelectorAll(`.qopt[data-qi="${qi}"]`).forEach((b,oi)=>{
+      if(oi===q.a)b.classList.add('ok');
+      else if(qAns[qi]===oi)b.classList.add('bad');
+    });
+    if(qAns[qi]===q.a)sc++;
+  });
+  const el=document.getElementById('quizScore');
+  el.classList.remove('hidden');
+  el.innerHTML=`${emoji(sc,QQ.length)} You got <strong>${sc} / ${QQ.length}</strong> correct! ${msg(sc,QQ.length)}`;
+  document.getElementById('quizSubmit').classList.add('hidden');
+  document.getElementById('quizReset').classList.remove('hidden');
+}
+
+/* ============================================================
+   TRUE / FALSE
+   ============================================================ */
+const TF=[
+  {t:'Bogotá is the capital city of Colombia.',a:true},
+  {t:'Colombia is in Europe.',a:false},
+  {t:'The Amazon Rainforest is in Colombia.',a:true},
+  {t:'Cartagena is a city in the mountains.',a:false},
+  {t:'Colombia has more bird species than any other country.',a:true},
+  {t:'Arepa is made from wheat.',a:false},
+  {t:'The Barranquilla Carnival lasts 4 days.',a:true},
+];
+let tfAns=[],tfDone=false;
+
+function buildTF(){
+  tfAns=new Array(TF.length).fill(null);tfDone=false;
+  const c=document.getElementById('tfContainer');c.innerHTML='';
+  TF.forEach((s,i)=>{
+    const d=document.createElement('div');d.className='tfi';
+    d.innerHTML=`<p>${i+1}. ${s.t}</p>
+      <div class="tf-btns">
+        <button class="tfb is-t" data-i="${i}" onclick="pickTF(this,${i},true)">✅ True</button>
+        <button class="tfb is-f" data-i="${i}" onclick="pickTF(this,${i},false)">❌ False</button>
+      </div>`;
+    c.appendChild(d);
+  });
+  document.getElementById('tfScore').classList.add('hidden');
+  document.getElementById('tfSubmit').classList.remove('hidden');
+  document.getElementById('tfReset').classList.add('hidden');
+}
+
+function pickTF(btn,i,val){
+  if(tfDone)return;
+  document.querySelectorAll(`.tfb[data-i="${i}"]`).forEach(b=>{b.classList.remove('sel-t','sel-f');});
+  btn.classList.add(val?'sel-t':'sel-f');
+  tfAns[i]=val;
+}
+
+function submitTF(){
+  if(tfAns.some(a=>a===null)){alert('Please answer all statements! 😊');return;}
+  tfDone=true;let sc=0;
+  TF.forEach((s,i)=>{
+    document.querySelectorAll(`.tfb[data-i="${i}"]`).forEach(btn=>{
+      const v=btn.classList.contains('is-t')||btn.classList.contains('sel-t');
+      // determine this button's value by class
+    });
+    // simpler approach: check each button
+    const btns=document.querySelectorAll(`.tfb[data-i="${i}"]`);
+    btns.forEach(btn=>{
+      const isTrue=btn.textContent.trim().startsWith('✅');
+      if(isTrue===s.a) btn.classList.add('ok');
+      else if(tfAns[i]===isTrue) btn.classList.add('bad');
+    });
+    if(tfAns[i]===s.a)sc++;
+  });
+  const el=document.getElementById('tfScore');
+  el.classList.remove('hidden');
+  el.innerHTML=`${emoji(sc,TF.length)} You got <strong>${sc} / ${TF.length}</strong> correct! ${msg(sc,TF.length)}`;
+  document.getElementById('tfSubmit').classList.add('hidden');
+  document.getElementById('tfReset').classList.remove('hidden');
+}
+
+/* ============================================================
+   MATCH
+   ============================================================ */
+const MP=[
+  {word:'🏙️ Bogotá',   key:'bog'},
+  {word:'☕ Coffee',    key:'cof'},
+  {word:'🌿 Rainforest',key:'rai'},
+  {word:'🏖️ Beach',    key:'bea'},
+  {word:'🦜 Toucan',   key:'tou'},
+  {word:'🎉 Festival', key:'fes'},
+];
+const ME=[
+  {text:'☕ A hot drink',     key:'cof'},
+  {text:'🌿 Green trees',     key:'rai'},
+  {text:'🏙️ Capital city',   key:'bog'},
+  {text:'🏖️ Sand & water',   key:'bea'},
+  {text:'🎉 Music & dance',  key:'fes'},
+  {text:'🦜 Colorful bird',  key:'tou'},
+];
+let mSel=null,mDone=new Set();
+
+function buildMatch(){
+  mSel=null;mDone=new Set();
+  const words=shuffle([...MP]);
+  const emojis=shuffle([...ME]);
+  const wc=document.getElementById('matchWords');
+  const ec=document.getElementById('matchEmojis');
+  wc.innerHTML='';ec.innerHTML='';
+  words.forEach(p=>{
+    const b=document.createElement('div');
+    b.className='mitem';b.dataset.key=p.key;b.dataset.side='w';
+    b.textContent=p.word;
+    b.addEventListener('click',()=>handleMatch(b));
+    wc.appendChild(b);
+  });
+  emojis.forEach(p=>{
+    const b=document.createElement('div');
+    b.className='mitem';b.dataset.key=p.key;b.dataset.side='e';
+    b.textContent=p.text;
+    b.addEventListener('click',()=>handleMatch(b));
+    ec.appendChild(b);
+  });
+  document.getElementById('matchScore').classList.add('hidden');
+  document.getElementById('matchReset').classList.add('hidden');
+}
+
+function handleMatch(btn){
+  if(btn.classList.contains('done'))return;
+  if(!mSel){
+    document.querySelectorAll('.mitem.sel').forEach(b=>b.classList.remove('sel'));
+    btn.classList.add('sel');mSel=btn;return;
+  }
+  if(mSel.dataset.side===btn.dataset.side){
+    document.querySelectorAll('.mitem.sel').forEach(b=>b.classList.remove('sel'));
+    btn.classList.add('sel');mSel=btn;return;
+  }
+  if(mSel.dataset.key===btn.dataset.key){
+    mSel.classList.remove('sel');mSel.classList.add('done');
+    btn.classList.add('done');mDone.add(btn.dataset.key);mSel=null;
+    if(mDone.size===MP.length){
+      document.getElementById('matchScore').classList.remove('hidden');
+      document.getElementById('matchScore').innerHTML='🎉 Excellent! You matched everything! Perfect score! ⭐';
+      document.getElementById('matchReset').classList.remove('hidden');
+    }
+  } else {
+    mSel.classList.remove('sel');mSel.classList.add('bad');
+    btn.classList.add('bad');
+    const prev=mSel;mSel=null;
+    setTimeout(()=>{prev.classList.remove('bad');btn.classList.remove('bad');},700);
+  }
+}
+
+/* ============================================================
+   ACTIVITY TABS
+   ============================================================ */
+function showAct(name,tabBtn){
+  document.querySelectorAll('.act-panel').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.act-tab').forEach(t=>t.classList.remove('on'));
+  document.getElementById('act-'+name).classList.add('on');
+  tabBtn.classList.add('on');
+}
+
+/* ============================================================
+   REFLECTION
+   ============================================================ */
+function saveReflections(){
+  const inputs=document.querySelectorAll('.rtxt');
+  const has=Array.from(inputs).some(i=>i.value.trim().length>0);
+  if(!has){alert('Please write at least one answer! 😊');return;}
+  const ok=document.getElementById('rOk');
+  ok.classList.remove('hidden');
+  setTimeout(()=>ok.classList.add('hidden'),3500);
+  setTimeout(()=>document.getElementById('final').scrollIntoView({behavior:'smooth'}),1000);
+}
+
+/* ============================================================
+   CONFETTI
+   ============================================================ */
+function buildConfetti(){
+  const fc=document.getElementById('fcard');
+  const cols=['#FCD116','#CE1126','#003087','#3CB371','#EC4899','#F97316','#A855F7'];
+  for(let i=0;i<20;i++){
+    const p=document.createElement('div');
+    p.className='confetti-piece';
+    p.style.cssText=`left:${Math.random()*100}%;top:-10px;background:${cols[~~(Math.random()*cols.length)]};animation-delay:${Math.random()*3}s;animation-duration:${2+Math.random()*2}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'};`;
+    fc.appendChild(p);
+  }
+}
+
+/* ============================================================
+   SCROLL ANIMATIONS
+   ============================================================ */
+function setupObserver(){
+  const obs=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);}
+    });
+  },{threshold:.1});
+  document.querySelectorAll('.fade-in').forEach((el,i)=>{
+    el.style.transitionDelay=`${(i%6)*0.07}s`;
+    obs.observe(el);
+  });
+}
+
+/* ============================================================
+   HELPERS
+   ============================================================ */
+function emoji(s,t){const p=s/t;return p===1?'🏆':p>=.7?'🌟':p>=.5?'👍':'📚';}
+function msg(s,t){const p=s/t;return p===1?'Perfect! You are a Colombia expert! 🇨🇴':p>=.7?'Great job! Keep learning! 😊':p>=.5?'Good try! Review the tour and try again!':'Keep exploring the tour and try again!';}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=~~(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+document.addEventListener('DOMContentLoaded',()=>{
+  buildTourGrid();
+  buildVocab();
+  buildQuiz();
+  buildTF();
+  buildMatch();
+  buildConfetti();
+  updateProgress();
+  setupObserver();
+});
+</script>
+</body>
+</html>
